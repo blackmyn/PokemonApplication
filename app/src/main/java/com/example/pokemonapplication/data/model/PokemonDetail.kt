@@ -1,7 +1,6 @@
-package com.example.pokemonapplication.data.models
+package com.example.pokemonapplication.data.model
 
-data class Pokemon(
-    val id: Int,
+data class PokemonDetail(
     val name: String,
     val imageUrl: String,
     val types: List<String>,
