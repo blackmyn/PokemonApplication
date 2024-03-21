@@ -5,7 +5,18 @@ data class PokemonDTO(
     val name: String,
     val sprites: SpritesDTO,
     val types: List<TypeDTO>,
-    val weight: Float,
-    val height: Float
-)
+    val weight: Int,
+    val height: Int
+) {
+    data class SpritesDTO(
+        val front_default: String
+    )
 
+    data class TypeDTO(
+        val type: TypeDetailsDTO
+    ) {
+        data class TypeDetailsDTO(
+            val name: String
+        )
+    }
+}

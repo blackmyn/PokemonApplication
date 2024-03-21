@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">PokemonApplication</string>
+    <string name="no_data_right_now_try_again_later">No data right now, try again later</string>
+    <string name="pokemons_list">Pokemons list</string>
 </resources>
