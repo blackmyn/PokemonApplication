@@ -1,10 +1,11 @@
 package com.example.pokemonapplication.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "pokemons")
 data class Pokemon(
-    val id: Int,
+    @PrimaryKey val id: Int,
     val name: String,
-    val imageUrl: String,
-    val types: List<String>,
-    val weight: Float,
-    val height: Float
+    val url: String
 )

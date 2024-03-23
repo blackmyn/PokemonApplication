@@ -1,65 +1,54 @@
 package com.example.pokemonapplication.data.repository
 
 import com.example.pokemonapplication.data.local.LocalDataSource
-import com.example.pokemonapplication.data.local.entity.PokemonEntity
 import com.example.pokemonapplication.data.model.Pokemon
-import com.example.pokemonapplication.data.model.PokemonDTO
-import com.example.pokemonapplication.data.remote.RemoteDataSource
+import com.example.pokemonapplication.data.model.PokemonDetails
+import com.example.pokemonapplication.data.remote.PokemonRemoteDataSource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class PokemonRepositoryImpl(
+class PokemonRepositoryImpl @Inject constructor(
     private val localDataSource: LocalDataSource,
-    private val remoteDataSource: RemoteDataSource
+    private val remoteDataSource: PokemonRemoteDataSource
 ) : PokemonRepository {
 
-    override fun getPokemonList(offset: Int, limit: Int): Flow<List<Pokemon>> = flow {
-        val cachedPokemon = localDataSource.getAllPokemon()
-        if (cachedPokemon.isNotEmpty()) {
-            emit(cachedPokemon.map { it.toPokemon() })
-        }
-
-        val response = remoteDataSource.getPokemonList(offset, limit)
-        if (response.isSuccessful) {
-            val pokemonDTOList = response.body()?.results ?: emptyList()
-            val pokemonList = pokemonDTOList.map { it.toPokemonEntity() }
-            localDataSource.savePokemonList(pokemonList)
-            emit(pokemonList.map { it.toPokemon() })
+    override fun getPokemonList(limit: Int, offset: Int): Flow<List<Pokemon>> = flow {
+        val localPokemons = localDataSource.getAllPokemon().first()
+        if (localPokemons.isNotEmpty()) {
+            emit(localPokemons)
         } else {
-            throw Exception("Error fetching Pokemon list")
+            val response = remoteDataSource.getPokemons(limit, offset)
+            val pokemons = response.results.map {
+                Pokemon(
+                    id = it.url.split("/")[6].toInt(),
+                    name = it.name,
+                    url = it.url
+                )
+            }
+            localDataSource.insertPokemon(pokemons)
+            emit(pokemons)
         }
     }
 
-    override suspend fun getPokemonDetails(pokemonId: Int): Pokemon {
-        val cachedPokemon = localDataSource.getPokemonById(pokemonId)
-        if (cachedPokemon != null) {
-            return cachedPokemon.toPokemon()
+
+    override fun getPokemonDetails(id: Int): Flow<PokemonDetails?> = flow {
+        val localPokemon = localDataSource.getPokemonById(id).first()
+        if (localPokemon != null) {
+            emit(localPokemon)
+        } else {
+            val pokemonDetails = remoteDataSource.getPokemonDetails(id)
+            val pokemon = PokemonDetails(
+                id = pokemonDetails.id,
+                name = pokemonDetails.name,
+                height = pokemonDetails.height,
+                weight = pokemonDetails.weight,
+                sprites = pokemonDetails.sprites,
+                types = pokemonDetails.types
+            )
+            localDataSource.insertPokemonDetails(pokemon)
+            emit(pokemon)
         }
-
-        val pokemonDTO = remoteDataSource.getPokemonDetails(pokemonId)
-        return pokemonDTO.toPokemonEntity().toPokemon()
     }
-}
-
-private fun PokemonDTO.toPokemonEntity(): PokemonEntity {
-    return PokemonEntity(
-        id = id,
-        name = name,
-        imageUrl = sprites.frontDefault ?: "",
-        types = types.map { it.type.name },
-        weight = weight,
-        height = height
-    )
-}
-
-
-private fun PokemonEntity.toPokemon(): Pokemon {
-    return Pokemon(
-        id = id,
-        name = name,
-        imageUrl = imageUrl,
-        types = types,
-        weight = weight,
-        height = height
-    )
 }

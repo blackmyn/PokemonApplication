@@ -1,28 +1,25 @@
 package com.example.pokemonapplication.data.local
 
-import android.content.Context
-import androidx.room.Room
 import com.example.pokemonapplication.data.local.dao.PokemonDao
-import com.example.pokemonapplication.data.local.database.PokemonDatabase
-import com.example.pokemonapplication.data.local.entity.PokemonEntity
+import com.example.pokemonapplication.data.model.Pokemon
+import com.example.pokemonapplication.data.model.PokemonDetails
+import kotlinx.coroutines.flow.Flow
 
-class LocalDataSource(context: Context) {
-    private val pokemonDatabase: PokemonDatabase = Room.databaseBuilder(
-        context.applicationContext,
-        PokemonDatabase::class.java, "pokemon_database"
-    ).build()
+class LocalDataSource(private val pokemonDao: PokemonDao) {
 
-    val pokemonDao: PokemonDao = pokemonDatabase.pokemonDao()
-
-    suspend fun savePokemonList(pokemonList: List<PokemonEntity>) {
-        pokemonDao.savePokemonList(pokemonList)
+    fun getAllPokemon(): Flow<List<Pokemon>> {
+        return pokemonDao.getAllPokemons()
     }
 
-    suspend fun getAllPokemon(): List<PokemonEntity> {
-        return pokemonDao.getAllPokemon()
+    fun getPokemonById(id: Int): Flow<PokemonDetails?> {
+        return pokemonDao.getPokemonDetails(id)
     }
 
-    suspend fun getPokemonById(id: Int): PokemonEntity? {
-        return pokemonDao.getPokemonById(id)
+    suspend fun insertPokemon(pokemon: List<Pokemon>) {
+        pokemonDao.insertPokemons(pokemon)
+    }
+
+    suspend fun insertPokemonDetails(pokemon: PokemonDetails) {
+        pokemonDao.insertPokemonDetails(pokemon)
     }
 }

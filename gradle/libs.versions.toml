@@ -12,6 +12,9 @@ constraintlayout = "2.1.4"
 roomCommon = "2.6.1"
 roomKtx = "2.6.1"
 playServicesBasement = "18.3.0"
+databindingAdapters = "8.3.1"
+pagingCommonKtx = "3.2.1"
+transportRuntime = "3.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -25,6 +28,9 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 play-services-basement = { group = "com.google.android.gms", name = "play-services-basement", version.ref = "playServicesBasement" }
+androidx-databinding-adapters = { group = "androidx.databinding", name = "databinding-adapters", version.ref = "databindingAdapters" }
+androidx-paging-common-ktx = { group = "androidx.paging", name = "paging-common-ktx", version.ref = "pagingCommonKtx" }
+transport-runtime = { group = "com.google.android.datatransport", name = "transport-runtime", version.ref = "transportRuntime" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
