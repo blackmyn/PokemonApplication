@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,13 +28,14 @@ class PokemonListViewModel @Inject constructor(
 
     private val _intent = MutableSharedFlow<PokemonListIntent>()
     val intent: SharedFlow<PokemonListIntent> = _intent
-
+    private var currentPage = 1
+    private var hasMorePages = true
     init {
         viewModelScope.launch {
             _intent
                 .flatMapConcat { intent ->
                     when (intent) {
-                        is PokemonListIntent.LoadPokemons -> loadPokemons()
+                        is PokemonListIntent.LoadPokemons -> loadPokemons(currentPage)
                         is PokemonListIntent.SelectPokemon -> selectPokemon(intent.pokemon)
                     }
                 }
@@ -49,9 +51,27 @@ class PokemonListViewModel @Inject constructor(
         }
     }
 
-    private fun loadPokemons(): Flow<Resource<List<Pokemon>>> {
-
+    private fun loadPokemons(page: Int): Flow<Resource<List<Pokemon>>> {
         return getPokemonsUseCase(20, 0)
+            .onEach {
+                if (it is Resource.Success) {
+                    hasMorePages = it.data?.isNotEmpty() ?: false
+                }
+            }
+    }
+
+    fun loadNextPage() {
+        if (hasMorePages) {
+            currentPage++
+            sendIntent(PokemonListIntent.LoadPokemons)
+        }
+    }
+
+    fun loadPreviousPage() {
+        if (currentPage > 1) {
+            currentPage--
+            sendIntent(PokemonListIntent.LoadPokemons)
+        }
     }
 
     private fun selectPokemon(pokemon: Pokemon): Flow<Resource<List<Pokemon>>> {

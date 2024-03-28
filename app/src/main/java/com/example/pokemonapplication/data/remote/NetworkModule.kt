@@ -1,5 +1,6 @@
 package com.example.pokemonapplication.data.remote
 
+import com.google.android.datatransport.runtime.dagger.Provides
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -28,4 +29,14 @@ object NetworkModule {
         .client(okHttpClient)
         .addConverterFactory(MoshiConverterFactory.create(moshi))
         .build()
+
+    @Provides
+    fun providePokemonApiService(): PokemonApiService {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+        return retrofit.create(PokemonApiService::class.java)
+    }
 }

@@ -31,4 +31,8 @@ class GetPokemonsUseCase @Inject constructor(
             currentPage--
         }
     }
+
+    fun getCurrentOffset(): Int {
+        return (currentPage - 1) * 20 // Assuming a limit of 20 items per page
+    }
 }
